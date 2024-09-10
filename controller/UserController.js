@@ -71,10 +71,38 @@ const deleteUser = async(req, res)=>{
         return res.status(404).json({message: e.message});
     }
 }
+const loginUser = async (req, res) => {
+    try {
+      const schema = Joi.object({
+        email: Joi.string().email().required(),
+        password: Joi.string().required(),
+      });
+  
+      const { error } = schema.validate(req.body);
+      if (error) {
+        return res.status(400).json({
+          status: error.status,
+          message: error.details[0].message,
+        });
+      }
+  
+      const { email, password } = req.body;
+      const respon = await UserServices.login(email, password);
+  
+      if (respon.status === "Error") {
+        return res.status(400).json(respon);
+      }
+  
+      return res.status(200).json(respon);
+    } catch (e) {
+      return res.status(500).json({ message: e.message });
+    }
+  };
 module.exports={
     createUser,
     getAllUser,
     getDetailUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    loginUser
 }
